@@ -35,22 +35,27 @@ class Game:
         instruction = input("Enter a square to play (1-9) or another command. 'help' for details. ")
         if instruction.lower() == "help":
             self.help()
-            self.turn()
+            self.turn(player)
         elif instruction.lower() == "board":
             self.exampleBoard()
-            self.turn()
+            self.turn(player)
         elif instruction.lower() == "rules":
             self.showRules()
-            self.turn()
+            self.turn(player)
         elif instruction.lower() == "current board":
             self.gameboard.showBoard()
-            self.turn()
-        elif int(instruction) in range(1,9):
-            self.gameboard.updateBoard(int(instruction),player.token)
-            self.gameboard.showBoard()
+            self.turn(player)
+        elif int(instruction) in range(1,10):
+            n = int(instruction)
+            if self.gameboard.board[n-1] == "-":
+                self.gameboard.updateBoard(n,player.token)
+                self.gameboard.showBoard()
+            else:
+                print("Someone is already there!")
+                self.turn(player)
 
-        if self.gameboard.checkWinner():
-            self.endGame()
+#        if self.gameboard.checkWinner():
+#            self.endGame()
         return None
 
     @staticmethod
@@ -77,7 +82,7 @@ class Game:
             print("Thanks for playing!")
             print("Final results: ")
             for p in self.players:
-                print(p.showStats())
+                p.showStats()
             return False
         else:
             print("Invalid entry!")
@@ -134,7 +139,7 @@ class Board:
         # updates the "rows" (anything that can win)
         self._row1 = self.board[0:3]
         self._row2 = self.board[3:6]
-        self._row3 = self.board[6:9]
+        self._row3 = self.board[6:10]
         self._col1 = [k for i,k in enumerate(self.board) if i%3==0]
         self._col2 = [k for i,k in enumerate(self.board) if i%3==1]
         self._col3 = [k for i,k in enumerate(self.board) if i%3==2]
