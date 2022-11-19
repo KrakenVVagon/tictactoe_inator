@@ -5,7 +5,7 @@ Min-max algorithm goes through all possible states down a series of decision tre
 Winning states are given +1, losing states are given -1 and neutral states are given 0.
 The highest total value for the initial action is the one that should be chosen
 """
-import game
+from game import Board
 
 def getBestMove(board,aiTurn=True,marker="X"):
     """
@@ -17,14 +17,14 @@ def getBestMove(board,aiTurn=True,marker="X"):
     aiTurn  whether it is the AI turn or the other player's turn
     """
 
-    win = board.checkWinner()
+    win = board.checkWinner(verbose=False)
     if win and aiTurn:
         return 1
     elif win and not aiTurn:
         return -1
 
     # make a copy of the board to iterate through
-    board_copy = game.Board()
+    board_copy = Board()
     board_copy.board = board.board[:]
 
     possible_moves = getPossibleMoves(board.board)
@@ -39,7 +39,6 @@ def getBestMove(board,aiTurn=True,marker="X"):
     moves = []
     for move in possible_moves:
         board_copy.updateBoard(move,marker)
-        board_copy.showBoard()
 
         aiTurn = not aiTurn
         if marker.lower() == "x":
@@ -66,7 +65,7 @@ def getPossibleMoves(state):
     return empty_spots
 
 if __name__ == "__main__":
-    board = game.Board()
+    board = Board()
 
     board.updateBoard(1,"O")
     board.updateBoard(6,"O")
@@ -74,6 +73,7 @@ if __name__ == "__main__":
     board.updateBoard(2,"X")
     board.updateBoard(5,"X")
     board.updateBoard(9,"X")
+    board.showBoard()
 
     # prints the first winning move
     print(getBestMove(board))

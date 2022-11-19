@@ -2,6 +2,67 @@
 Module that holds the board and game settings
 """
 
+def reinforcedBestMove():
+
+    return 0
+
+def minMaxBestMove(board,aiTurn=True,marker="X"):
+    """
+    Gets the best move for the computer should make
+    Will be recursive (each move generates new possible moves)
+    Should return 1,-1 or 0 and the according square that is being played
+
+    board   the current state of the board (board object)
+    aiTurn  whether it is the AI turn or the other player's turn
+    """
+
+    win = board.checkWinner(verbose=False)
+    if win and aiTurn:
+        return 1
+    elif win and not aiTurn:
+        return -1
+
+    # make a copy of the board to iterate through
+    board_copy = Board()
+    board_copy.board = board.board[:]
+
+    possible_moves = getPossibleMoves(board.board)
+
+    # if there are no moves and no one has won then it is a draw
+    if possible_moves == []:
+        return 0
+
+    # each move needs to get the next set of possible moves
+    # need to update the game board and send the new state to the function
+    scores = []
+    moves = []
+    for move in possible_moves:
+        board_copy.updateBoard(move,marker)
+
+        aiTurn = not aiTurn
+        if marker.lower() == "x":
+            marker = "O"
+        elif marker.lower() == "o":
+            marker = "X"
+
+        moves.append(move)
+        scores.append(minMaxBestMove(board_copy,aiTurn=aiTurn,marker=marker))
+        board_copy.board = board.board[:]
+
+    return moves[scores.index(max(scores))]
+
+def getPossibleMoves(state):
+    """
+    Checks which spots in the board are currently empty
+    These are the possible moves that we need to get the best one for
+    This will be in square numbers not in indices
+    """
+
+    possible_spots = [1,2,3,4,5,6,7,8,9]
+    empty_spots = [possible_spots[i] for i,k in enumerate(state) if k == "-"]
+
+    return empty_spots
+
 class Game:
     """
     goes through turns (user input 1-9 for square selected)
@@ -32,6 +93,13 @@ class Game:
         return None
 
     def turn(self,player):
+
+        if player.ai:
+            n = player.ai_move(self.gameboard,marker=player.token)
+            self.gameboard.updateBoard(n,player.token)
+            self.gameboard.showBoard()
+            return None
+
         instruction = input("Enter a square to play (1-9) or another command. 'help' for details. ")
         if instruction.lower() == "help":
             self.help()
@@ -122,11 +190,12 @@ class Board:
         print(pstring)
         return None
 
-    def checkWinner(self):
+    def checkWinner(self,verbose=True):
         # check if any player has 3 in a row
         for r in self._rows:
             if r.count(r[0])==len(r) and (r[0].lower() == "x" or r[0].lower()=="o"):
-                print("WE HAVE A WINNER!")
+                if verbose:
+                    print("WE HAVE A WINNER!")
                 return True
         return False
 
@@ -164,6 +233,18 @@ class Player:
         self.token = token
         self.ai = ai
         self.stats = {"W":0,"L":0,"T":0}
+
+        # if ai then select what kind of AI you are playing against
+        if self.ai:
+            self.ai_difficulty = input("Select AI difficulty (E/H): ")
+            if self.ai_difficulty.lower() == "e":
+                self.ai_move = minMaxBestMove
+            elif self.ai_difficulty.lower() == "h":
+                self.ai_move = reinforcedBestMove
+                raise ValueError("Hard AI not currently implemented")
+            else:
+                raise ValueError("Invalid AI Difficulty.")
+
         return None
 
     def updateStats(self,result):

@@ -1,8 +1,8 @@
-import tictactoeinator.game
+from tictactoeinator.game import Game, Board
 import random
 
 def main():
-    game = tictactoeinator.game.Game()
+    game = Game()
     game.showRules()
     player1 = game.player1
     player2 = game.player2
@@ -31,7 +31,7 @@ def main():
             if game.endGame():
                 win=False
                 turn=int(random.choice([True, False]))
-                game.gameboard = tictactoeinator.game.Board()
+                game.gameboard = Board()
                 continue
             break
         if ("-" not in game.gameboard.board) and not win:
@@ -41,7 +41,7 @@ def main():
             if game.endGame():
                 win=False
                 turn=int(random.choice([True, False]))
-                game.gameboard = tictactoeinator.game.Board()
+                game.gameboard = Board()
                 continue
             break
 
